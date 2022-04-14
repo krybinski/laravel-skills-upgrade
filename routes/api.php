@@ -24,6 +24,7 @@ Route::group(['prefix' => 'v1'], function () {
     // Mechanics
     Route::controller(MechanicsController::class)->group(function () {
         Route::get('/mechanics', 'index');
+        Route::get('/mechanics/{mechanic}', 'show');
         Route::post('/mechanics', 'store');
     });
 });

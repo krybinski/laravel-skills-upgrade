@@ -13,6 +13,11 @@ class Mechanic extends Model
         'name',
     ];
 
+    public function photos()
+    {
+        return $this->morphMany(Photo::class, 'imageable');
+    }
+
     public function setName($value)
     {
         return $this->attributes['name'] = strtoupper($value);
