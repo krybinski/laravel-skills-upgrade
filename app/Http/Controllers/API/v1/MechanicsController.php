@@ -7,11 +7,23 @@ use App\Http\Requests\Mechanic\StoreMechanicRequest;
 use App\Http\Resources\MechanicResource;
 use App\Models\Mechanic;
 use App\Models\Photo;
+use App\Services\MechanicsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MechanicsController extends Controller
 {
+    /** @var MechanicsService */
+    protected $mechanicsService;
+
+    /**
+     * @param MechanicsService $mechanicsService
+     */
+    public function __construct(MechanicsService $mechanicsService)
+    {
+        $this->mechanicsService = $mechanicsService;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -19,10 +31,10 @@ class MechanicsController extends Controller
      */
     public function index(): JsonResponse
     {
-        // TODO: move to MechanicService
-        $mechanics = MechanicResource::collection(Mechanic::with('photos')->get());
-
-        return response()->json($mechanics, JsonResponse::HTTP_OK);
+        return response()->json(
+            MechanicResource::collection($this->mechanicsService->getAll()),
+            JsonResponse::HTTP_OK
+        );
     }
 
     /**
@@ -34,19 +46,10 @@ class MechanicsController extends Controller
      */
     public function store(StoreMechanicRequest $request): JsonResponse
     {
-        // TODO: move to MechanicService
-        $mechanic = new Mechanic();
-        $mechanic->name = $request->name;
-        $mechanic->save();
-
-        // MorphTo photos
-        $mechanic->photos()->save(new Photo([
-            'imageable_id' => $mechanic->id,
-            'imageable_type' => Mechanic::class,
-            'filename' => 'default.jpg',
-        ]));
-
-        return response()->json($mechanic, JsonResponse::HTTP_CREATED);
+        return response()->json(
+            $this->mechanicsService->store($request->validated()),
+            JsonResponse::HTTP_CREATED
+        );
     }
 
     /**
@@ -58,21 +61,10 @@ class MechanicsController extends Controller
      */
     public function show(int $mechanicId): JsonResponse
     {
-        // TODO: move to MechanicService
-        $mechanic = MechanicResource::make(Mechanic::with('photos')->findOrFail($mechanicId));
-
-        return response()->json($mechanic, JsonResponse::HTTP_OK);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        return response()->json(
+            MechanicResource::make($this->mechanicsService->getById($mechanicId)),
+            JsonResponse::HTTP_OK
+        );
     }
 
     /**
