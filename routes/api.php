@@ -27,4 +27,16 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/mechanics/{mechanic}', 'show');
         Route::post('/mechanics', 'store');
     });
+
+    Route::get('/test', function () {
+        $data = collect(['Tom', 'John', 'James', null, 0])
+            ->map(function ($element) {
+                return strtoupper($element);
+            })
+            ->reject(function ($element) {
+                return empty($element);
+            });
+
+        return response()->json($data);
+    });
 });
